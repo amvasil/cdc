@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "t18_pwsupply", "t18_pwsupply.cproj", "{428EBD4D-EBB9-45DB-B8AC-D4E8DD644B9E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{428EBD4D-EBB9-45DB-B8AC-D4E8DD644B9E}.Debug|AVR.ActiveCfg = Debug|AVR
+		{428EBD4D-EBB9-45DB-B8AC-D4E8DD644B9E}.Debug|AVR.Build.0 = Debug|AVR
+		{428EBD4D-EBB9-45DB-B8AC-D4E8DD644B9E}.Release|AVR.ActiveCfg = Release|AVR
+		{428EBD4D-EBB9-45DB-B8AC-D4E8DD644B9E}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
