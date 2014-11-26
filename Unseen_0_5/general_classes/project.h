@@ -6,21 +6,32 @@ class Project
 {
 private:
     QString name;                           // Имя проекта
-    Test *current_test; //текущий редактируемый или проводимый тест
+    Test *current_test;                     //текущий редактируемый или проводимый тест
     QList<Test*> tests;                     // Список тестов
     QList<Variable*> variables;             // Список переменных
     QList<Configuration*> configurations;   // Список конфигураций
 public:
 
-
 // Констуктор
     Project(QString _name);
 //  Деструктор
 // Работа с полями
+    // Добавление
     void addConfiguration(Configuration* conf);
     void addVariable(Variable *variable0);
     void addTest(Test *test);
+    // Обращение
+    Configuration* atConfiguration(int n);
+    Variable* atVariable(int n);
+    Test* atTest(int n);
+    // Удаление
+    void removeConfiguration(int n);
+    void removeVariable(int n);
+    void removeTest(int n);
+
+
     void setCurrentTest(Test* test);
+
     void updateVariable(Variable *var);
 
     Test *getCurrentTest();
