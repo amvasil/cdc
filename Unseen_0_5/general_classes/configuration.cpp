@@ -6,9 +6,14 @@ Configuration::Configuration(QString _name)
     pitayas[0]=new Pitaya(0);
     pitayas[1]=new Pitaya(1);
 
+    enabled_DigGen=false;
+    for(int i=0;i<8;i++)
+    {
+        digout[i]=false;
+        enabled_digout[i]=false;
+    }
 
-
-
+    // Добавляем источники
     for(int i=0;i<4;i++)
     {
         csupplies.append(new ControlledSupply(i+1,(i<2)?3.0:10.0));
@@ -37,8 +42,6 @@ void Configuration::assignToGenerator(int pitaya, int channel, Variable *var, do
 {
     pitayas[pitaya]->generators[channel]->assigned_var = var;
     pitayas[pitaya]->generators[channel]->setFrequency(freq);
-
-
 }
 
 void Configuration::assignToOscilloscope(int pitaya, int channel, Variable *var)
@@ -110,6 +113,26 @@ void Configuration::getXML(QXmlStreamWriter *wr)
         }
     }
     wr->writeEndElement();
+
+    // Про цифровые выходы
+    QString temp;
+    for(int i=0;i<8;i++)
+    {
+        if(enabled_digout[i])
+            temp.append(QString::number(i)+';');
+    }
+    if(temp.size()!=0)
+    {
+        temp.remove(temp.size()-1,1);
+        wr->writeStartElement("DigOut");
+        wr->writeCharacters(temp);
+        wr->writeEndElement();
+    }
+
+    // Про генератор
+    wr->writeEmptyElement("DigGen");
+    wr->writeAttribute("enabled",enabled_DigGen?"1":"0");
+
     // Про источники
     wr->writeStartElement("ControlledSupply");
     ControlledSupply* cs;
@@ -126,7 +149,6 @@ void Configuration::getXML(QXmlStreamWriter *wr)
             wr->writeAttribute("negative",cs->isNegative()?"1":"0");
             wr->writeEndElement();
         }
-
     }
     wr->writeEndElement();
 
@@ -164,7 +186,8 @@ void Configuration::readXML(QXmlStreamReader *rd,QList<Variable*> *lst)
         if(rd->isStartElement()&&
                 (rd->name()=="ControlledSupply"||
                  rd->name()=="UncontrolledSupply"||
-                 rd->name()=="pitayas"))
+                 rd->name()=="pitayas")||
+                 rd->name()=="DigOut")
         {
                 rd->readNext();
                 while(!rd->isEndElement())
@@ -219,7 +242,24 @@ void Configuration::readXML(QXmlStreamReader *rd,QList<Variable*> *lst)
                         tpit->setMaster(temp_attr.value("master").toInt(&ok));
                         tpit->setEnabled(true);
                     }
+                    if(rd->name()=="DigOut")
+                    {
+                        rd->readNext();
+                        QStringList lst=rd->text().toString().split(';');
 
+                        for(int i=0;i<lst.size();i++)
+                        {
+                            if(lst.at(i).toInt()<8)
+                            {
+                                enabled_digout[lst.at(i).toInt()]=true;
+                            }
+                        }
+
+                    }
+                    if(rd->name()=="DigGen")
+                    {
+                        enabled_DigGen=rd->attributes().value("enabled").toInt();
+                    }
                     if(!ok)
                         throw "Ошибка чтения XML";
                     rd->readNext();
@@ -319,4 +359,42 @@ QList<Variable *> Configuration::getMeasuredVariables()
         }
     }
     return temp;
+}
+
+void Configuration::setEnabledDigOut(int n, bool en)
+{
+    if(n<8)
+    {
+        enabled_digout[n]=en;
+    }
+}
+void Configuration::setDigOut(int n, bool m)
+{
+    if(n<8)
+    {
+        digout[n]=m;
+        setEnabledDigOut(n,m);
+    }
+}
+bool Configuration::isEnabledDigOut(int n)
+{
+    if(n<8)
+    {
+        return enabled_digout[n];
+    }
+}
+bool Configuration::getDigOut(int n)
+{
+    if(n<8)
+    {
+        return digout[n];
+    }
+}
+void Configuration::setEnabledDigGen(bool w)
+{
+    enabled_DigGen=w;
+}
+bool Configuration::isEnabledDigGen()
+{
+    return enabled_DigGen;
 }

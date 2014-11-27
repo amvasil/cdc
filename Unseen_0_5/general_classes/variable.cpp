@@ -31,7 +31,7 @@ void Variable::getXML(QXmlStreamWriter *wr)
     for(int j=0;j<=s;j++)
     {
         wr->writeCharacters(QString::number(values.at(j)).append(
-                                (j==s)?"":","));
+                                (j==s)?"":";"));
     }
     wr->writeCharacters("\n\t");
     wr->writeEndElement();
@@ -61,7 +61,7 @@ void Variable::readXML(QXmlStreamReader* rd)
                 QString temp=rd->text().toString();
                 if(temp.contains(QRegExp("[0-9]")))
                 {
-                    QStringList lst = temp.split(",");
+                    QStringList lst = temp.split(";");
                     values.clear();
                     for(int i=0;i<lst.size();i++)
                     {

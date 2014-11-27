@@ -86,6 +86,20 @@ void Test::getXML(QXmlStreamWriter *wr)
     wr->writeAttribute("generatorPause",QString::number(generatorPause));
     wr->writeAttribute("powerOnPause",QString::number(powerOnPause));
     wr->writeAttribute("duration",QString::number(duration));
+    // Опишем DigOut
+    wr->writeStartElement("DigOut");
+    for(int i=0;i<8;i++)
+    {
+        if(configuration->isEnabledDigOut(i))
+        {
+            wr->writeStartElement("output");
+            wr->writeAttribute("num",QString::number(i));
+            wr->writeCharacters(configuration->getDigOut(i)?"1":"0");
+            wr->writeEndElement();
+        }
+    }
+    wr->writeEndElement();
+
     // Опишем питайи
     for(int j=0;j<2;j++)
     {

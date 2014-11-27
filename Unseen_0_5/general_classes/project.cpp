@@ -7,7 +7,6 @@ Project::Project(QString _name)
 }
 
 
-
 void Project::addConfiguration(Configuration *conf)
 {
     configurations.append(conf);
@@ -177,4 +176,48 @@ void Project::XMLfile2Vars(QString filename)
     if(rd.hasError())
           throw "Ошибка при анализе XML";
     f.close();
+}
+Configuration* Project::atConfiguration(int n)
+{
+    if(n<configurations.size())
+    {
+        return configurations.at(n);
+    }
+}
+Variable* Project::atVariable(int n)
+{
+    if(n<variables.size())
+    {
+        return variables.at(n);
+    }
+}
+Test* Project::atTest(int n)
+{
+    if(n<tests.size())
+    {
+        return tests.at(n);
+    }
+}
+
+void Project::removeConfiguration(int n)
+{
+    if(n<configurations.size())
+    {
+        configurations.removeAt(n);
+    }
+}
+
+void Project::removeTest(int n)
+{
+    if(n<tests.size())
+    {
+        tests.removeAt(n);
+    }
+}
+void Project::removeVariable(int n)
+{
+    if(n<variables.size())
+    {
+        variables.removeAt(n);
+    }
 }
