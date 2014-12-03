@@ -15,10 +15,11 @@ public:
 // Констуктор
     Project(QString _name);
 //  Деструктор
+    ~Project();
 // Работа с полями
     // Добавление
     void addConfiguration(Configuration* conf);
-    void addVariable(Variable *variable0);
+    void addVariable(Variable *variable);
     void addTest(Test *test);
     // Обращение
     Configuration* atConfiguration(int n);
@@ -31,7 +32,6 @@ public:
 
 
     void setCurrentTest(Test* test);
-
     void updateVariable(Variable *var);
 
     Test *getCurrentTest();

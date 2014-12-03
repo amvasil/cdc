@@ -30,8 +30,8 @@ private:
     double fuse;                    // Предохранитель
     bool does_measure;
     bool negative;
-    //const double min_voltage=3.0;
-    //const double max_voltage=20.0;
+    const double min_voltage=3.0;
+    const double max_voltage=20.0;
 public:
    Variable* assigned_var;         // Значения
 
