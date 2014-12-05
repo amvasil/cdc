@@ -15,7 +15,6 @@ void Project::addConfiguration(Configuration *conf)
 void Project::addVariable(Variable *variable)
 {
     variables.append(variable);
-    current_test->addVariable(variable);
 }
 
 void Project::addTest(Test *test)
@@ -219,5 +218,20 @@ void Project::removeVariable(int n)
     if(n<variables.size())
     {
         variables.removeAt(n);
+    }
+}
+Project::~Project()
+{
+    for(int i=0;i<tests.size();i++)
+    {
+        delete tests.at(i);
+    }
+    for(int i=0;i<configurations.size();i++)
+    {
+        delete configurations.at(i);
+    }
+    for(int i=0;i<variables.size();i++)
+    {
+        delete variables.at(i);
     }
 }

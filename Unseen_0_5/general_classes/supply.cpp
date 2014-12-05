@@ -38,14 +38,13 @@ void Supply::setVoltage(double v)
     voltage=v;
 }
 
-ControlledSupply::ControlledSupply(int n, double v, double f, bool dm, bool neg):Supply(neg,v)
+ControlledSupply::ControlledSupply(int n, double v, double f, bool dm, bool neg):Supply(n,v)
 {
-    number = n;
     assigned_var=NULL;
     fuse=f;
     does_measure=dm;
     negative=neg;
-    setEnabled(false);
+    enabled=false;
 }
 
 void ControlledSupply::setFuse(double f)
@@ -75,10 +74,10 @@ double ControlledSupply::getFuse()
 void ControlledSupply::assign(Variable *var)
 {
     assigned_var=var;
-    setEnabled(true);
+    enabled=true;
 }
 
 UncontrolledSupply::UncontrolledSupply(int n, double v):Supply(n,v)
 {
-    setEnabled(false);
+    enabled=false;
 }

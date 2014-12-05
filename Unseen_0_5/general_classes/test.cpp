@@ -147,8 +147,7 @@ void Test::readXML(QXmlStreamReader *rd, QList<Configuration *> *lst, QList<Vari
     Oscilloscope *tosc;
     bool ok=true;
     rd->readNext();
-    while(!rd->atEnd()&&!(rd->isEndElement()&&
-                              (rd->name()=="test"||rd->name()=="tests")))
+    while(!rd->atEnd()&&!(rd->isEndElement()&& rd->name()=="test"))
     {
         if(rd->isEndElement())
         {
@@ -159,9 +158,9 @@ void Test::readXML(QXmlStreamReader *rd, QList<Configuration *> *lst, QList<Vari
         {
                 temp_attr=rd->attributes();
                 name=temp_attr.value("name").toString();
-                powerOnPause=temp_attr.value("powerOnPause").toDouble();
-                generatorPause=temp_attr.value("generatorPause").toDouble();
-                duration=temp_attr.value("duration").toDouble();
+                powerOnPause=temp_attr.value("powerOnPause").toString().toDouble();
+                generatorPause=temp_attr.value("generatorPause").toString().toDouble();
+                duration=temp_attr.value("duration").toString().toDouble();
                 int i;
                 for(i=0;i<lst->size();i++)
                 {
@@ -178,7 +177,7 @@ void Test::readXML(QXmlStreamReader *rd, QList<Configuration *> *lst, QList<Vari
         {
             for(int i=0;i<2;i++)
             {
-                if(configuration->getPitaya(i)->getNumber()==rd->attributes().value("number").toInt())
+                if(configuration->getPitaya(i)->getNumber()==rd->attributes().value("number").toString().toInt())
                 {
                     tpit=configuration->getPitaya(i);
                     break;
@@ -189,13 +188,13 @@ void Test::readXML(QXmlStreamReader *rd, QList<Configuration *> *lst, QList<Vari
         {
             for(int i=0;i<2;i++)
             {
-                if(tpit->getGenerator(i)->getChannel()==rd->attributes().value("channel").toInt())
+                if(tpit->getGenerator(i)->getChannel()==rd->attributes().value("channel").toString().toInt())
                 {
                     tgen=tpit->getGenerator(i);
                     break;
                 }
             }
-            tgen->setFrequency(rd->attributes().value("frequency").toDouble(&ok));
+            tgen->setFrequency(rd->attributes().value("frequency").toString().toDouble(&ok));
             for(int i=0;i<var->size();i++)
             {
                 if(var->at(i)->getName()==rd->attributes().value("var_name"))
@@ -214,7 +213,7 @@ void Test::readXML(QXmlStreamReader *rd, QList<Configuration *> *lst, QList<Vari
         {
             for(int i=0;i<2;i++)
             {
-                if(tpit->getOscilloscope(i)->getChannel()==rd->attributes().value("channel").toInt())
+                if(tpit->getOscilloscope(i)->getChannel()==rd->attributes().value("channel").toString().toInt())
                 {
                     tosc=tpit->getOscilloscope(i);
                     break;

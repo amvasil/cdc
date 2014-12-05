@@ -24,6 +24,7 @@ public:
         int getChannel();
         Variable *getAssignedVar();
         void assign(Variable *var);
+
         friend class Configuration;
 };
 

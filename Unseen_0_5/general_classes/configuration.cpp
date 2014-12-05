@@ -47,8 +47,6 @@ void Configuration::assignToGenerator(int pitaya, int channel, Variable *var, do
 void Configuration::assignToOscilloscope(int pitaya, int channel, Variable *var)
 {
     pitayas[pitaya]->oscilloscopes[channel]->assigned_var = var;
-
-
 }
 
 Oscilloscope **Configuration::getOscilloscopes(int pitaya)
@@ -95,18 +93,16 @@ void Configuration::getXML(QXmlStreamWriter *wr)
             {
                 if(pitaya->generators[k]!=NULL&&pitaya->generators[k]->isEnabled())
                 {
-                    wr->writeStartElement("generator");
+                    wr->writeEmptyElement("generator");
                     wr->writeAttribute("channel",QString::number(pitaya->generators[k]->getChannel()));
-                    wr->writeEndElement();
                 }
             }
             for(int k=0;k<2;k++)
             {
                 if(pitaya->oscilloscopes[k]!=NULL&&pitaya->oscilloscopes[k]->isEnabled())
                 {
-                    wr->writeStartElement("oscilloscope");
+                    wr->writeEmptyElement("oscilloscope");
                     wr->writeAttribute("channel",QString::number(pitaya->oscilloscopes[k]->getChannel()));
-                    wr->writeEndElement();
                 }
             }
             wr->writeEndElement();
@@ -134,34 +130,32 @@ void Configuration::getXML(QXmlStreamWriter *wr)
     wr->writeAttribute("enabled",enabled_DigGen?"1":"0");
 
     // Про источники
-    wr->writeStartElement("ControlledSupply");
+    wr->writeStartElement("ControlledSupplies");
     ControlledSupply* cs;
     for(int j=0;j<csupplies.size();j++)
     {
         cs=csupplies.at(j);
         if(cs->isEnabled())
         {
-            wr->writeStartElement("csupplies");
+            wr->writeEmptyElement("csupply");
             wr->writeAttributes(cs->getAttributes());
             wr->writeAttribute("var_name",cs->assigned_var==NULL?"":cs->assigned_var->getName());
             wr->writeAttribute("fuse",QString::number(cs->getFuse()));
             wr->writeAttribute("does_measure",cs->isDoesMeasure()?"1":"0");
             wr->writeAttribute("negative",cs->isNegative()?"1":"0");
-            wr->writeEndElement();
         }
     }
     wr->writeEndElement();
 
-    wr->writeStartElement("UncontrolledSupply");
+    wr->writeStartElement("UncontrolledSupplies");
     UncontrolledSupply* uncs;
     for(int j=0;j<uncsupplies.size();j++)
     {
         uncs=uncsupplies.at(j);
         if(uncs->isEnabled())
         {
-            wr->writeStartElement("uncsupplies");
+            wr->writeEmptyElement("uncsupply");
             wr->writeAttributes(uncs->getAttributes());
-            wr->writeEndElement();
         }
     }
     wr->writeEndElement();
@@ -179,96 +173,81 @@ void Configuration::readXML(QXmlStreamReader *rd,QList<Variable*> *lst)
     QXmlStreamAttributes temp_attr;
     rd->readNext();
     while(!rd->atEnd()&&!(rd->isEndElement()&&
-                          (rd->name()=="config"||rd->name()=="configurations")))
+                          (rd->name()=="config")))
     {
-        if(rd->isStartElement()&&rd->name()=="config")
-            name=rd->attributes().value("name").toString();
-        if(rd->isStartElement()&&
-                (rd->name()=="ControlledSupply"||
-                 rd->name()=="UncontrolledSupply"||
-                 rd->name()=="pitayas")||
-                 rd->name()=="DigOut")
+        rd->readNext();
+        if(rd->isStartElement())
         {
-                rd->readNext();
-                while(!rd->isEndElement())
-                {
-                    if(rd->name()=="csupplies")
-                    {
-//                        csupplies.append(new ControlledSupply(temp_attr.value("number").toInt(&ok),
-//                                                              temp_attr.value("voltage").toDouble(&ok)));
-                        ControlledSupply *cs = getControlledSypply(temp_attr.value("number").toInt(&ok));
-                        cs->setVoltage(temp_attr.value("voltage").toDouble(&ok));
-                        setControlledSupply(cs);
-                        temp_attr=rd->attributes();
-                        for(int i=0;i<lst->size();i++)
-                        {
-                            if(lst->at(i)->getName()==temp_attr.value("var_name"))
-                                csupplies.back()->assigned_var=lst->at(i);
-                        }
-                        csupplies.back()->setEnabled(temp_attr.value("enabled").toInt(&ok));
-                        csupplies.back()->setFuse(temp_attr.value("fuse").toDouble(&ok));
-                        csupplies.back()->setDoesMeasure(temp_attr.value("does_measure").toInt(&ok));
-                        csupplies.back()->setNegative(temp_attr.value("negative").toInt(&ok));
-                        rd->readNext();
-                    }
-                    if(rd->name()=="uncsupplies")
-                    {
-                        temp_attr=rd->attributes();
-                        setUncontrolledSupplyEnabled(temp_attr.value("number").toInt(&ok),
-                                                     temp_attr.value("voltage").toDouble(&ok),true);
-                        rd->readNext();
+            if(rd->name()=="config")
+            {
+                name=rd->attributes().value("name").toString();
+                continue;
+            }
+            if(rd->name()=="csupply")
+            {
+                temp_attr=rd->attributes();
+                ControlledSupply *cs = getControlledSypply(temp_attr.value("number").toString().toInt(&ok));
+                cs->setVoltage(temp_attr.value("voltage").toString().toDouble(&ok));
+                cs->setEnabled(temp_attr.value("enabled").toString().toInt(&ok));
+                cs->setFuse(temp_attr.value("fuse").toString().toDouble(&ok));
+                cs->setDoesMeasure(temp_attr.value("does_measure").toString().toInt(&ok));
+                cs->setNegative(temp_attr.value("negative").toString().toInt(&ok));
 
-                    }
-                    /*if(rd->name()=="generator")
+                for(int i=0;i<lst->size();i++)
+                {
+                    if(lst->at(i)->getName()==temp_attr.value("var_name"))
+                        cs->assigned_var=lst->at(i);
+                }
+                continue;
+            }
+            if(rd->name()=="uncsupply")
+            {
+                temp_attr=rd->attributes();
+                setUncontrolledSupplyEnabled(temp_attr.value("number").toString().toInt(&ok),
+                                             temp_attr.value("voltage").toString().toDouble(&ok),true);
+                continue;
+            }
+            if(rd->name()=="pitaya")
+            {
+                temp_attr=rd->attributes();
+                tpit=pitayas[temp_attr.value("number").toString().toInt()];
+                tpit->setMaster(temp_attr.value("master").toString().toInt(&ok));
+                tpit->setEnabled(true);
+                while(!rd->atEnd()&&!(rd->isEndElement()&&
+                                      (rd->name()=="pitaya")))
+                {
+                    rd->readNext();
+                    if(rd->name()=="generator")
                     {
-                        if(num_gen>1) throw "В XML описано больше 2 генераторов одной из питай";
-                        tpit->generators[rd->re]=new Generator(rd->attributes().value("channel").toInt(&ok));
-                        num_gen++;
-                        rd->readNext();
+                        tpit->getGenerator(rd->attributes().value("channel").toString().toInt(&ok))->setEnabled(true);
+
                     }
                     if(rd->name()=="oscilloscope")
                     {
-                        if(num_osc>1) throw "В XML описано больше 2 осциллографов одной из питай";
-                        pitayas[n]->oscilloscopes[num_osc]=new Oscilloscope(rd->attributes().value("channel").toInt(&ok));
-                        num_osc++;
-                        rd->readNext();
-                    }*/
-                    if(rd->name()=="pitaya")
-                    {
-                        //if(n>1) throw "В XML описано больше 2 питай";
-
-                        temp_attr=rd->attributes();
-                        tpit=pitayas[temp_attr.value("number").toInt()];
-                        tpit->setMaster(temp_attr.value("master").toInt(&ok));
-                        tpit->setEnabled(true);
+                         tpit->getOscilloscope(rd->attributes().value("channel").toString().toInt(&ok))->setEnabled(true);
                     }
-                    if(rd->name()=="DigOut")
-                    {
-                        rd->readNext();
-                        QStringList lst=rd->text().toString().split(';');
-
-                        for(int i=0;i<lst.size();i++)
-                        {
-                            if(lst.at(i).toInt()<8)
-                            {
-                                enabled_digout[lst.at(i).toInt()]=true;
-                            }
-                        }
-
-                    }
-                    if(rd->name()=="DigGen")
-                    {
-                        enabled_DigGen=rd->attributes().value("enabled").toInt();
-                    }
-                    if(!ok)
-                        throw "Ошибка чтения XML";
-                    rd->readNext();
                 }
             }
-            rd->readNext();
+            if(rd->name()=="DigOut")
+            {
+                rd->readNext();
+                QStringList lst=rd->text().toString().split(';');
+                for(int i=0;i<lst.size();i++)
+                {
+                    if(lst.at(i).toInt()<8)
+                    {
+                        enabled_digout[lst.at(i).toInt()]=true;
+                    }
+                }
+            }
+            if(rd->name()=="DigGen")
+            {
+                enabled_DigGen=rd->attributes().value("enabled").toString().toInt();
+            }
         }
         if(rd->hasError())
             throw "Ошибка при анализе XML";
+    }
 }
 void Configuration::setEnabledGenerator(int num_pitaya, int num_channel,bool w)
 {
@@ -291,7 +270,12 @@ void Configuration::setPitayaEnabled(int number, bool enabled)
 
 ControlledSupply *Configuration::getControlledSypply(int number)
 {
-    return csupplies.at(number);
+    for(int i=0;i<csupplies.size();i++)
+    {
+        if(csupplies.at(i)->number == number){
+            return csupplies.at(i);
+        }
+    }
 }
 
 void Configuration::setControlledSupply(ControlledSupply *supply)
